@@ -24,6 +24,34 @@ module Cct
       @log = BaseLogger.new(LOG_TAG)
     end
 
+    def unhumanize_results cmd
+      lines = self.exec!(cmd).output.delete(' ').split("\n")
+      lines.delete_if { |line| line.start_with?("+") }
+      lines.map! { |line| line.split("|") }
+      heading = lines.shift
+      return heading, lines
+    end
+
+    def get_result_column cmd, column
+      heading, lines = unhumanize_results(cmd)
+      c = heading.index(column)
+      result = []
+      lines.each { |line| result.push line[c] }
+      result
+    end
+
+    def get_result_item cmd, column, match
+      heading, lines = unhumanize_results(cmd)
+      key, value = match.split("=")
+      k = heading.index(key)
+      c = heading.index(column)
+      kk = []
+      cc = []
+      lines.each { |line| kk.push line[k] }
+      lines.each { |line| cc.push line[c] }
+      cc[kk.index(value)]
+    end
+
     def exec! command, *params
       self.load! unless control_node
       params << {environment: {source: [ENV_FILE]}}
