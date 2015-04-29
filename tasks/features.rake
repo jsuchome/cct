@@ -3,6 +3,7 @@ namespace :features do
     invoke_task "feature:admin"
     invoke_task "feature:controller"
     invoke_task "feature:keystone"
+    invoke_task "feature:glance"
   end
 end
 
